@@ -1575,7 +1575,16 @@ contains
 
           burned_mass        = curr_litt%ag_cwd(c) * patch_site_areadis * &
                                currentPatch%burnt_frac_litter(c)
- 
+                               
+         ! calculate pyrogenic carbon
+         pyc = burned_mass*pyc_factor(c)
+         burned_mass = max(0.0, burned_mass - pyc)
+         
+         ! transfer pyc between patches
+         currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
+         newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
+         
+
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2
 
@@ -1599,6 +1608,7 @@ contains
 
            burned_mass              = curr_litt%leaf_fines(dcmpy) * patch_site_areadis * &
                                       currentPatch%burnt_frac_litter(dl_sf)
+            
 
            new_litt%leaf_fines(dcmpy) = new_litt%leaf_fines(dcmpy) + donatable_mass*donate_m2
            curr_litt%leaf_fines(dcmpy) = curr_litt%leaf_fines(dcmpy) + donatable_mass*retain_m2
