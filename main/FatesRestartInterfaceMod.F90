@@ -1023,7 +1023,7 @@ contains
             hlms='CLM:ALM', initialize=initialize_variables, ivar=ivar, index = ir_scorch_ht_pa_pft)
        
        call this%set_restart_var(vname='fates_litter_moisture_pa_nfsc', vtype=cohort_r8, &
-            long_name='scorch height', units='m', flushval = flushzero, &
+            long_name='litter moisture', units='m', flushval = flushzero, &
             hlms='CLM:ALM', initialize=initialize_variables, ivar=ivar, index = ir_litter_moisture_pa_nfsc)
     end if
     
