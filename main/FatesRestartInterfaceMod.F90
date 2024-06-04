@@ -212,6 +212,8 @@ module FatesRestartInterfaceMod
   integer :: ir_bgcwd_frag_litt
   integer :: ir_lfines_frag_litt
   integer :: ir_rfines_frag_litt
+  integer :: ir_pyrogenic_carbon_pa
+
 
   integer :: ir_scorch_ht_pa_pft
   integer :: ir_litter_moisture_pa_nfsc
@@ -992,7 +994,7 @@ contains
          long_name='total AGB from grass, by patch', &
          units='kgC/m2', flushval = flushzero, &
          hlms='CLM:ALM', initialize=initialize_variables, ivar=ivar, index = ir_livegrass_pa )
-
+         
     call this%set_restart_var(vname='fates_age', vtype=cohort_r8, &
          long_name='age of the ED patch', units='yr', flushval = flushzero, &
          hlms='CLM:ALM', initialize=initialize_variables, ivar=ivar, index = ir_age_pa )

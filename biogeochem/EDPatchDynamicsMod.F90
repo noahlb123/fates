@@ -2785,6 +2785,7 @@ contains
     rp%c_lblayer            = (dp%c_lblayer*dp%area + rp%c_lblayer*rp%area) * inv_sum_area
     rp%rad_error(1)         = (dp%rad_error(1)*dp%area + rp%rad_error(1)*rp%area) * inv_sum_area
     rp%rad_error(2)         = (dp%rad_error(2)*dp%area + rp%rad_error(2)*rp%area) * inv_sum_area
+    rp%pyrogenic_carbon     = (dp%pyrogenic_carbon*dp%area + rp%pyrogenic_carbon*rp%area) * inv_sum_area
     
     rp%area = rp%area + dp%area !THIS MUST COME AT THE END!
 
