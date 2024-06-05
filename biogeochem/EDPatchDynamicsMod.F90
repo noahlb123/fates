@@ -16,6 +16,7 @@ module EDPatchDynamicsMod
   use FatesLitterMod       , only : ncwd
   use FatesLitterMod       , only : ndcmpy
   use FatesLitterMod       , only : litter_type
+  use FatesConstantsMod    , only : pyc_factor
   use FatesConstantsMod    , only : n_dbh_bins 
   use FatesLitterMod       , only : adjust_SF_CWD_frac
   use EDTypesMod           , only : homogenize_seed_pfts
@@ -1454,7 +1455,8 @@ contains
      
     !
     ! !USES:
-    !
+
+
     ! !ARGUMENTS:
     type(ed_site_type)  , intent(in)    :: currentSite        ! site
     type(fates_patch_type) , intent(in)    :: currentPatch       ! Donor patch
@@ -1483,6 +1485,7 @@ contains
     real(r8) :: litter_stock0,litter_stock1
     real(r8) :: burn_flux0,burn_flux1
     real(r8) :: error
+    real(r8) :: pyc
 
     do el = 1,num_elements
 

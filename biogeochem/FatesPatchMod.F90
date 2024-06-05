@@ -184,7 +184,7 @@ module FatesPatchMod
     ! LITTER AND COARSE WOODY DEBRIS
     type(litter_type), pointer :: litter(:)               ! litter (leaf,fnrt,CWD and seeds) for different elements
     real(r8), allocatable      :: fragmentation_scaler(:) ! scale rate of litter fragmentation based on soil layer [0-1]
-    real(r8),                  :: pyrogenic_carbon(nfsc)
+    real(r8)                   :: pyrogenic_carbon(nfsc)
 
     !---------------------------------------------------------------------------
 
@@ -371,6 +371,7 @@ module FatesPatchMod
 
       ! LITTER AND COARSE WOODY DEBRIS
       this%fragmentation_scaler(:)      = nan 
+      this%pyrogenic_carbon(:)          = nan
   
       ! FUELS AND FIRE
       this%sum_fuel                     = nan 
@@ -449,6 +450,7 @@ module FatesPatchMod
 
       ! LITTER AND COARSE WOODY DEBRIS
       this%fragmentation_scaler(:)           = 0.0_r8
+      this%pyrogenic_carbon(:)               = 0.0_r8
 
       ! FIRE
       this%sum_fuel                          = 0.0_r8
