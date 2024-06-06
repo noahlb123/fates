@@ -64,6 +64,10 @@ module FatesLitterMod
   integer,  parameter, public :: dl_sf                = 5          ! array index of dead leaf pool for spitfire (dead grass and dead leaves)
   integer,  parameter, public :: lg_sf                = 6          ! array index of live grass pool for spitfire
 
+  ! Pyrogenic Carbon Production Factors (grams PyC / grams carbon burned)
+  ! for each litter type (twigs, small branches, large branches, trunks)
+  real(r8), parameter, public :: pyc_proc_facs(ncwd) = &
+  (/0.099_r8, 0.1095_r8, 0.12_r8, 0.25_r8/)
 
 
    type, public ::  litter_type

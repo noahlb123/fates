@@ -278,9 +278,6 @@ integer, parameter, public :: isemi_stress_decid = 2 ! If the PFT is stress (dro
 
   ! Physical constants
 
-  !Pyrogenic carbon production factor
-  real(fates_r8), parameter, public :: pyc_factor = 0.1_fates_r8
-  
   ! dewpoint calculation
   real(fates_r8), parameter, public :: dewpoint_a = 17.62_fates_r8
   real(fates_r8), parameter, public :: dewpoint_b = 243.12_fates_r8 ![degrees C]
