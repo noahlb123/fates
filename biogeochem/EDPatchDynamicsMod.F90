@@ -1459,7 +1459,7 @@ contains
 
     ! !ARGUMENTS:
     type(ed_site_type)  , intent(in)    :: currentSite        ! site
-    type(fates_patch_type) , intent(in)    :: currentPatch       ! Donor patch
+    type(fates_patch_type) , intent(inout)    :: currentPatch       ! Donor patch
     type(fates_patch_type) , intent(inout) :: newPatch           ! New patch
     real(r8)            , intent(in)    :: patch_site_areadis ! Area being donated
                                                               ! by current patch
@@ -1580,7 +1580,7 @@ contains
                                currentPatch%burnt_frac_litter(c)
                                
          ! calculate pyrogenic carbon
-         pyc = burned_mass*pyc_factor(c)
+         pyc = burned_mass*0.1_r8 !pyc_factor(c)
          burned_mass = max(0.0, burned_mass - pyc)
          
          ! transfer pyc between patches
