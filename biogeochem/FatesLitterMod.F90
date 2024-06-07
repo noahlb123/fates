@@ -68,6 +68,9 @@ module FatesLitterMod
   ! for each litter type (twigs, small branches, large branches, trunks)
   real(r8), parameter, public :: pyc_proc_facs(ncwd) = &
   (/0.099_r8, 0.1095_r8, 0.12_r8, 0.25_r8/)
+  
+  !PyC loss factor duing a fire
+  real(r8), parameter, public :: pyc_loss_fac = 0.099_r8
 
 
    type, public ::  litter_type

@@ -17,6 +17,7 @@ module EDPatchDynamicsMod
   use FatesLitterMod       , only : ndcmpy
   use FatesLitterMod       , only : litter_type
   use FatesLitterMod       , only : pyc_proc_facs
+  use FatesLitterMod       , only : pyc_loss_fac
   use FatesConstantsMod    , only : n_dbh_bins 
   use FatesLitterMod       , only : adjust_SF_CWD_frac
   use EDTypesMod           , only : homogenize_seed_pfts
@@ -1583,6 +1584,9 @@ contains
          pyc = burned_mass*pyc_proc_facs(c)
          burned_mass = max(0.0, burned_mass - pyc)
          
+         ! remove old PyC burned in fire
+         currentPatch%pyrogenic_carbon = pyc_loss_fac * currentPatch%pyrogenic_carbon
+
          ! transfer pyc between patches
          currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
          newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
