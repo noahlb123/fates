@@ -1591,6 +1591,13 @@ contains
          currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
          newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
          
+         !Noah's pyc debugging
+         write(fates_log(),*) 'Noahs pyc, pyc: ',pyc
+         write(fates_log(),*) 'Noahs pyc, burned_mass: ',burned_mass
+         write(fates_log(),*) 'Noahs pyc, currentPatch%pyrogenic_carbon: ',currentPatch%pyrogenic_carbon
+         write(fates_log(),*) 'Noahs pyc, pyc_loss_fac: ',pyc_loss_fac
+         write(fates_log(),*) 'Noahs pyc, retain_m2: ',retain_m2
+         write(fates_log(),*) 'Noahs pyc, donate_m2: ',donate_m2
 
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2

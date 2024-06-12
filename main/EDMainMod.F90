@@ -456,6 +456,10 @@ contains
        newly_recovered = .false.
        
        currentCohort => currentPatch%shortest
+
+       !account for daily degradation of pyc
+       !currentPatch%pyrogenic_carbon = 0.9994521_r8 * currentPatch%pyrogenic_carbon
+
        do while(associated(currentCohort))
 
           ft = currentCohort%pft
