@@ -63,6 +63,7 @@ module EDMainMod
   use FatesSizeAgeTypeIndicesMod, only : coagetype_class_index
   use FatesLitterMod           , only : litter_type
   use FatesLitterMod           , only : ncwd
+  use FatesLitterMod           , only : pyc_daily_loss
   use EDtypesMod               , only : ed_site_type
   use FatesPatchMod            , only : fates_patch_type
   use FatesCohortMod           , only : fates_cohort_type
@@ -735,6 +736,9 @@ contains
        call PreDisturbanceLitterFluxes( currentSite, currentPatch, bc_in)
 
        call PreDisturbanceIntegrateLitter(currentPatch )
+
+       !slowly degrade pyc every day
+       currentPatch%pyrogenic_carbon = max(0.0_r8, currentPatch%pyrogenic_carbon*pyc_daily_loss)
 
        currentPatch => currentPatch%older
     enddo

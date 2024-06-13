@@ -352,7 +352,6 @@ module FatesPatchMod
       this%fabi(:)                      = nan
       this%sabs_dir(:)                  = nan 
       this%sabs_dif(:)                  = nan
-      this%pyrogenic_carbon(:)          = nan
       
       ! ROOTS
       this%btran_ft(:)                  = nan 
@@ -436,7 +435,6 @@ module FatesPatchMod
       this%fabd(:)                           = 0.0_r8
       this%sabs_dir(:)                       = 0.0_r8
       this%sabs_dif(:)                       = 0.0_r8
-      this%pyrogenic_carbon(:)               = 0.0_r8
 
       ! ROOTS
       this%btran_ft(:)                       = 0.0_r8

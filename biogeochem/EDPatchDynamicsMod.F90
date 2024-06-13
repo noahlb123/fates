@@ -17,7 +17,7 @@ module EDPatchDynamicsMod
   use FatesLitterMod       , only : ndcmpy
   use FatesLitterMod       , only : litter_type
   use FatesLitterMod       , only : pyc_proc_facs
-  use FatesLitterMod       , only : pyc_loss_fac
+  use FatesLitterMod       , only : pyc_fire_loss
   use FatesConstantsMod    , only : n_dbh_bins 
   use FatesLitterMod       , only : adjust_SF_CWD_frac
   use EDTypesMod           , only : homogenize_seed_pfts
@@ -1594,18 +1594,18 @@ contains
          pyc = burned_mass*pyc_proc_facs(c)
          burned_mass = max(0.0, burned_mass - pyc)
          
-         ! remove old PyC burned in fire
-         currentPatch%pyrogenic_carbon = pyc_loss_fac * currentPatch%pyrogenic_carbon
+         ! remove old PyC burned in fire (this is only done once/fire, here)
+         currentPatch%pyrogenic_carbon(c) = pyc_fire_loss * currentPatch%pyrogenic_carbon(c)
 
          ! transfer pyc between patches
-         currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
-         newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
+         currentPatch%pyrogenic_carbon(c) = currentPatch%pyrogenic_carbon(c) + pyc*retain_m2
+         newPatch%pyrogenic_carbon(c) = newPatch%pyrogenic_carbon(c) + pyc*donate_m2
          
          !Noah's pyc debugging
          !write(fates_log(),*) 'Noahs pyc, pyc: ',pyc
          !write(fates_log(),*) 'Noahs pyc, burned_mass: ',burned_mass
          !write(fates_log(),*) 'Noahs pyc, currentPatch%pyrogenic_carbon: ',currentPatch%pyrogenic_carbon
-         !write(fates_log(),*) 'Noahs pyc, pyc_loss_fac: ',pyc_loss_fac
+         !write(fates_log(),*) 'Noahs pyc, pyc_fire_loss: ',pyc_fire_loss
          !write(fates_log(),*) 'Noahs pyc, retain_m2: ',retain_m2
          !write(fates_log(),*) 'Noahs pyc, donate_m2: ',donate_m2
 
@@ -1632,6 +1632,14 @@ contains
 
            burned_mass              = curr_litt%leaf_fines(dcmpy) * patch_site_areadis * &
                                       currentPatch%burnt_frac_litter(dl_sf)
+
+           ! calculate pyrogenic carbon
+           pyc = burned_mass*pyc_proc_facs(c)
+           burned_mass = max(0.0, burned_mass - pyc)
+         
+           ! transfer pyc between patches
+           currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
+           newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
             
 
            new_litt%leaf_fines(dcmpy) = new_litt%leaf_fines(dcmpy) + donatable_mass*donate_m2
@@ -1838,6 +1846,13 @@ contains
 
              ! Contribution of dead trees to leaf burn-flux
              burned_mass  = num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned
+
+             ! Calculate pyrogenic carbon portion
+             pyc = burned_mass*pyc_proc_facs(0)
+             burned_mass = max(0.0, burned_mass - pyc)
+         
+             ! transfer pyc between patches
+             currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc * currentPatch%area 
 
              do dcmpy=1,ndcmpy
                  dcmpy_frac = GetDecompyFrac(pft,leaf_organ,dcmpy)
