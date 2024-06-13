@@ -487,6 +487,8 @@ contains
 
     !---------------------------------------------------------------------
 
+    write(fates_log(),*) 'Noahs spawn_patches called'
+
     storesmallcohort => null() ! storage of the smallest cohort for insertion routine
     storebigcohort   => null() ! storage of the largest cohort for insertion routine 
 
@@ -637,7 +639,11 @@ contains
                    cp_nocomp_matches_2_if: if ( hlm_use_nocomp .eq. ifalse .or. &
                         currentPatch%nocomp_pft_label .eq. i_nocomp_pft ) then
 
+                      write(fates_log(),*) 'Noahs cp_nocomp_matches_2_if met'
+
                       patchlabel_matches_lutype_if: if (currentPatch%land_use_label .eq. i_donorpatch_landuse_type) then
+
+                         write(fates_log(),*) 'Noahs patchlabel_matches_lutype_if met'
 
 
                          ! disturbance_rate is the fraction of the patch's area that is disturbed and donated
@@ -652,6 +658,8 @@ contains
                          patch_site_areadis = currentPatch%area * disturbance_rate
                          
                          areadis_gt_zero_if: if ( patch_site_areadis > nearzero ) then
+
+                            write(fates_log(),*) 'Noahs areadis_gt_zero_if met'
 
                             if(.not.associated(newPatch))then
                                write(fates_log(),*) 'Patch spawning has attempted to point to'
@@ -1487,6 +1495,8 @@ contains
     real(r8) :: burn_flux0,burn_flux1
     real(r8) :: error
     real(r8) :: pyc
+
+    write(fates_log(),*) 'Noahs TransLitterNewPatch called'
 
     do el = 1,num_elements
 
