@@ -39,7 +39,7 @@ contains
    
   ! ==============================================================================================
   
-  subroutine SiteMassStock(currentSite,el,total_stock,biomass_stock,litter_stock,seed_stock)
+  subroutine SiteMassStock(currentSite,el,total_stock,biomass_stock,litter_stock,seed_stock,pyc_stock)
   
      type(ed_site_type),intent(inout),target :: currentSite
      integer,intent(in)                      :: el           ! This is the element index
@@ -47,36 +47,40 @@ contains
      real(r8),intent(out)                    :: total_stock    ! kg
      real(r8),intent(out)                    :: litter_stock   ! kg
      real(r8),intent(out)                    :: biomass_stock  ! kg
+     real(r8),intent(out)                    :: pyc_stock      ! kg
      real(r8),intent(out)                    :: seed_stock     ! kg
      type(fates_patch_type), pointer            :: currentPatch
      type(fates_cohort_type), pointer           :: currentCohort
      real(r8)                                :: patch_biomass  ! kg
      real(r8)                                :: patch_seed     ! kg
      real(r8)                                :: patch_litter   ! kg
+     real(r8)                                :: patch_pyc      ! kg
        
      litter_stock  = 0.0_r8
      biomass_stock = 0.0_r8
      seed_stock    = 0.0_r8
+     pyc_stock     = 0.0_r8
 
      currentPatch => currentSite%oldest_patch 
      do while(associated(currentPatch))
 
-        call PatchMassStock(currentPatch,el,patch_biomass,patch_seed,patch_litter)
-        litter_stock  = litter_stock + patch_litter
+        call PatchMassStock(currentPatch,el,patch_biomass,patch_seed,patch_litter,patch_pyc)
+        litter_stock  = litter_stock  + patch_litter
         biomass_stock = biomass_stock + patch_biomass
-        seed_stock    = seed_stock + patch_seed
+        seed_stock    = seed_stock    + patch_seed
+        pyc_stock     = pyc_stock     + patch_pyc
 
         currentPatch => currentPatch%younger
      enddo !end patch loop
      
-     total_stock = biomass_stock + seed_stock + litter_stock
+     total_stock = biomass_stock + seed_stock + litter_stock + pyc_stock
 
      return
   end subroutine SiteMassStock
 
   ! =====================================================================================
 
-  subroutine PatchMassStock(currentPatch,el,live_stock,seed_stock,litter_stock)
+  subroutine PatchMassStock(currentPatch,el,live_stock,seed_stock,litter_stock, pyc_stock)
 
       ! ---------------------------------------------------------------------------------
       ! Sum up the mass of the different stocks on a patch for each element
@@ -86,6 +90,7 @@ contains
       real(r8),intent(out)                     :: live_stock
       real(r8),intent(out)                     :: seed_stock
       real(r8),intent(out)                     :: litter_stock
+      real(r8),intent(out)                     :: pyc_stock
 
       type(litter_type), pointer            :: litt           ! litter object
       type(fates_cohort_type), pointer         :: currentCohort
@@ -104,6 +109,10 @@ contains
         ! Total mass of viable seeds in [kg]
       seed_stock = currentPatch%area * &
             (sum(litt%seed) + sum(litt%seed_germ))
+
+
+      ! Total mass of pyrogenic carbon
+      pyc_stock = sum(currentPatch%pyrogenic_carbon)
 
 
       ! Total mass on living plants

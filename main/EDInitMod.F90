@@ -560,6 +560,7 @@ contains
     real(r8) :: biomass_stock
     real(r8) :: litter_stock
     real(r8) :: seed_stock
+    real(r8) :: pyc_stock
     integer  :: n
     integer  :: start_patch
     integer  :: num_new_patches
@@ -608,7 +609,7 @@ contains
        do s = 1, nsites
           do el=1,num_elements
              call SiteMassStock(sites(s),el,sites(s)%mass_balance(el)%old_stock, &
-                  biomass_stock,litter_stock,seed_stock)
+                  biomass_stock,litter_stock,seed_stock,pyc_stock)
           end do
           call set_patchno(sites(s))
        enddo
@@ -800,7 +801,7 @@ contains
           ! total carbon stock
           do el=1,num_elements
              call SiteMassStock(sites(s),el,sites(s)%mass_balance(el)%old_stock, &
-                  biomass_stock,litter_stock,seed_stock)
+                  biomass_stock,litter_stock,seed_stock,pyc_stock)
           end do
 
           call set_patchno(sites(s))

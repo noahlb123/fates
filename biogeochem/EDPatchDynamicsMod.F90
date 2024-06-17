@@ -1322,6 +1322,7 @@ contains
     integer                      :: el
     real(r8)                     :: live_stock
     real(r8)                     :: seed_stock
+    real(r8)                     :: pyc_stock
     real(r8)                     :: litter_stock
     real(r8)                     :: mass_gain
     real(r8), parameter          :: area_error_fail = 1.0e-6_r8
@@ -1357,10 +1358,10 @@ contains
        
        do el = 1,num_elements
            ! This returns the total mass on the patch for the current area [kg]
-           call PatchMassStock(largestPatch,el,live_stock,seed_stock,litter_stock)
+           call PatchMassStock(largestPatch,el,live_stock,seed_stock,litter_stock,pyc_stock)
            
            ! Then we scale the total mass by the added area
-           mass_gain = (seed_stock+litter_stock) * &
+           mass_gain = (seed_stock+litter_stock+pyc_stock) * &
                  (area_site-areatot)/largestPatch%area
 
            currentSite%mass_balance(el)%patch_resize_err = &

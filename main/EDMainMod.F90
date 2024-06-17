@@ -866,6 +866,7 @@ contains
     type(site_massbal_type),pointer :: site_mass
     real(r8) :: biomass_stock   ! total biomass   in Kg/site
     real(r8) :: litter_stock    ! total litter    in Kg/site
+    real(r8) :: pyc_stock       ! total pyrogenic carbon in Kg/site
     real(r8) :: seed_stock      ! total seed mass in Kg/site
     real(r8) :: total_stock     ! total ED carbon in Kg/site
     real(r8) :: change_in_stock ! Change since last time we set ed_allsites_inst%old_stock in this routine.  KgC/site
@@ -908,7 +909,7 @@ contains
 
        site_mass => currentSite%mass_balance(el)
 
-       call SiteMassStock(currentSite,el,total_stock,biomass_stock,litter_stock,seed_stock)
+       call SiteMassStock(currentSite,el,total_stock,biomass_stock,litter_stock,seed_stock,pyc_stock)
 
        change_in_stock = total_stock - site_mass%old_stock
 
