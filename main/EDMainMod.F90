@@ -456,9 +456,6 @@ contains
        
        currentCohort => currentPatch%shortest
 
-       !account for daily degradation of pyc
-       !currentPatch%pyrogenic_carbon = 0.9994521_r8 * currentPatch%pyrogenic_carbon
-
        do while(associated(currentCohort))
 
           ft = currentCohort%pft
@@ -738,7 +735,7 @@ contains
        call PreDisturbanceIntegrateLitter(currentPatch )
 
        !slowly degrade pyc every day
-       currentPatch%pyrogenic_carbon = max(0.0_r8, currentPatch%pyrogenic_carbon*pyc_daily_loss)
+       !currentPatch%pyrogenic_carbon = max(0.0_r8, currentPatch%pyrogenic_carbon*pyc_daily_loss)
 
        currentPatch => currentPatch%older
     enddo

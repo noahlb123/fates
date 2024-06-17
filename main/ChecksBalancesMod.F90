@@ -112,7 +112,7 @@ contains
 
 
       ! Total mass of pyrogenic carbon
-      pyc_stock = sum(currentPatch%pyrogenic_carbon)
+      pyc_stock = currentPatch%area * sum(currentPatch%pyrogenic_carbon)
 
 
       ! Total mass on living plants

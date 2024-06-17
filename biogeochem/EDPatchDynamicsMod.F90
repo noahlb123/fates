@@ -1593,7 +1593,7 @@ contains
                                
          ! calculate pyrogenic carbon
          pyc = burned_mass*pyc_proc_facs(c)
-         burned_mass = max(0.0, burned_mass - pyc)
+         !burned_mass = max(0.0, burned_mass - pyc)
          
          ! remove old PyC burned in fire (this is only done once/fire, here)
          currentPatch%pyrogenic_carbon(c) = pyc_fire_loss * currentPatch%pyrogenic_carbon(c)
@@ -1602,14 +1602,6 @@ contains
          currentPatch%pyrogenic_carbon(c) = currentPatch%pyrogenic_carbon(c) + pyc*retain_m2
          newPatch%pyrogenic_carbon(c) = newPatch%pyrogenic_carbon(c) + pyc*donate_m2
          
-         !Noah's pyc debugging
-         !write(fates_log(),*) 'Noahs pyc, pyc: ',pyc
-         !write(fates_log(),*) 'Noahs pyc, burned_mass: ',burned_mass
-         !write(fates_log(),*) 'Noahs pyc, currentPatch%pyrogenic_carbon: ',currentPatch%pyrogenic_carbon
-         !write(fates_log(),*) 'Noahs pyc, pyc_fire_loss: ',pyc_fire_loss
-         !write(fates_log(),*) 'Noahs pyc, retain_m2: ',retain_m2
-         !write(fates_log(),*) 'Noahs pyc, donate_m2: ',donate_m2
-
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2
 
@@ -1636,7 +1628,7 @@ contains
 
            ! calculate pyrogenic carbon
            pyc = burned_mass*0.0393306_r8
-           burned_mass = max(0.0, burned_mass - pyc)
+           !burned_mass = max(0.0, burned_mass - pyc)
          
            ! transfer pyc between patches
            currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
@@ -1854,7 +1846,7 @@ contains
 
              ! Calculate pyrogenic carbon portion
              pyc = burned_mass*pyc_fact
-             burned_mass = max(0.0, burned_mass - pyc)
+             !burned_mass = max(0.0, burned_mass - pyc)
          
              ! transfer pyc between patches
              currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc * currentPatch%area 
