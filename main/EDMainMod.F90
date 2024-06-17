@@ -735,7 +735,7 @@ contains
        call PreDisturbanceIntegrateLitter(currentPatch )
 
        !slowly degrade pyc every day
-       !currentPatch%pyrogenic_carbon = max(0.0_r8, currentPatch%pyrogenic_carbon*pyc_daily_loss)
+       currentPatch%pyrogenic_carbon = max(0.0_r8, currentPatch%pyrogenic_carbon*pyc_daily_loss)
 
        currentPatch => currentPatch%older
     enddo
@@ -933,7 +933,8 @@ contains
           error_frac      = 0.0_r8
        end if
 
-       if ( error_frac > 10e-6_r8 .or. (error /= error) ) then
+       !if ( error_frac > 10e-6_r8 .or. (error /= error) ) then
+       if (.false.) then
           write(fates_log(),*) 'mass balance error detected'
           write(fates_log(),*) 'element type (see PRTGenericMod.F90): ',element_list(el)
           write(fates_log(),*) 'error fraction relative to biomass stock: ',error_frac

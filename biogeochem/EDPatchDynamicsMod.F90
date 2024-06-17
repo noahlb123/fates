@@ -487,8 +487,6 @@ contains
 
     !---------------------------------------------------------------------
 
-    !write(fates_log(),*) 'Noahs spawn_patches called'
-
     storesmallcohort => null() ! storage of the smallest cohort for insertion routine
     storebigcohort   => null() ! storage of the largest cohort for insertion routine 
 
@@ -639,11 +637,7 @@ contains
                    cp_nocomp_matches_2_if: if ( hlm_use_nocomp .eq. ifalse .or. &
                         currentPatch%nocomp_pft_label .eq. i_nocomp_pft ) then
 
-                      !write(fates_log(),*) 'Noahs cp_nocomp_matches_2_if met'
-
                       patchlabel_matches_lutype_if: if (currentPatch%land_use_label .eq. i_donorpatch_landuse_type) then
-
-                         !write(fates_log(),*) 'Noahs patchlabel_matches_lutype_if met'
 
 
                          ! disturbance_rate is the fraction of the patch's area that is disturbed and donated
@@ -658,8 +652,6 @@ contains
                          patch_site_areadis = currentPatch%area * disturbance_rate
                          
                          areadis_gt_zero_if: if ( patch_site_areadis > nearzero ) then
-
-                            !write(fates_log(),*) 'Noahs areadis_gt_zero_if met'
 
                             if(.not.associated(newPatch))then
                                write(fates_log(),*) 'Patch spawning has attempted to point to'
@@ -1003,18 +995,23 @@ contains
                                      if(int(prt_params%woody(currentCohort%pft)) == itrue)then
 
                                         leaf_m = nc%prt%GetState(leaf_organ, element_list(el))
+                                        pyc_fact = 0.03488333_r8 !living crown fuels
 
                                      else
                                         ! for grasses burn all aboveground tissues
                                         leaf_m = nc%prt%GetState(leaf_organ, element_list(el)) + &
                                              nc%prt%GetState(sapw_organ, element_list(el)) + &
                                              nc%prt%GetState(struct_organ, element_list(el))
+                                        pyc_fact = 0.03137333_r8 !living grasses
 
                                      endif
 
                                      currentSite%mass_balance(el)%burn_flux_to_atm = &
                                           currentSite%mass_balance(el)%burn_flux_to_atm + &
                                           leaf_burn_frac * leaf_m * nc%n
+
+                                     !pyrogenic carbon for living leaves and grasses
+                                     currentPatch%pyrogenic_carbon(0) = leaf_burn_frac * leaf_m * nc%n * pyc_fact
                                   end do
 
                                   ! Here the mass is removed from the plant
@@ -1497,8 +1494,6 @@ contains
     real(r8) :: error
     real(r8) :: pyc
 
-    !write(fates_log(),*) 'Noahs TransLitterNewPatch called'
-
     do el = 1,num_elements
 
        site_mass => currentSite%mass_balance(el)
@@ -1626,8 +1621,8 @@ contains
            burned_mass              = curr_litt%leaf_fines(dcmpy) * patch_site_areadis * &
                                       currentPatch%burnt_frac_litter(dl_sf)
 
-           ! calculate pyrogenic carbon
-           pyc = burned_mass*0.0393306_r8
+           ! calculate pyrogenic carbon from leaf litter
+           pyc = burned_mass*0.01602_r8
            !burned_mass = max(0.0, burned_mass - pyc)
          
            ! transfer pyc between patches
@@ -1821,7 +1816,7 @@ contains
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id)
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
                 struct_m        = currentCohort%prt%GetState(struct_organ,element_id)
-                pyc_fact        = 0.05698333333_r8
+                pyc_fact        = 0.0136_r8
              else
                 ! for non-woody plants all stem fluxes go into the same leaf litter pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id) + &
@@ -1829,7 +1824,7 @@ contains
                      currentCohort%prt%GetState(struct_organ,element_id)
                 sapw_m          = 0._r8
                 struct_m        = 0._r8
-                pyc_fact        = 0.05676545_r8
+                pyc_fact        = 0.0313733_r8
              end if
 
 
