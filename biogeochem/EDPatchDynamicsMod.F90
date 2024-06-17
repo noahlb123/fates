@@ -1634,7 +1634,7 @@ contains
                                       currentPatch%burnt_frac_litter(dl_sf)
 
            ! calculate pyrogenic carbon
-           pyc = burned_mass*pyc_proc_facs(c)
+           pyc = burned_mass*0.0393306_r8
            burned_mass = max(0.0, burned_mass - pyc)
          
            ! transfer pyc between patches
@@ -1753,6 +1753,8 @@ contains
     integer  :: dcmpy                ! loop index for decomposability pool
     integer  :: element_id           ! parteh compatible global element index
     real(r8) :: SF_val_CWD_frac_adj(4) !Updated wood partitioning to CWD based on dbh
+    real(r8) :: pyc                  ! pyrogenic carbon produced from fire (charcoal, ash)
+    real(r8) :: pyc_fact             ! fraction of carbon converted to pyc
     !---------------------------------------------------------------------
 
     ! Only do this if there was a fire in this actual patch. 
@@ -1826,6 +1828,7 @@ contains
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id)
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
                 struct_m        = currentCohort%prt%GetState(struct_organ,element_id)
+                pyc_fact        = 0.05698333333_r8
              else
                 ! for non-woody plants all stem fluxes go into the same leaf litter pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id) + &
@@ -1833,6 +1836,7 @@ contains
                      currentCohort%prt%GetState(struct_organ,element_id)
                 sapw_m          = 0._r8
                 struct_m        = 0._r8
+                pyc_fact        = 0.05676545_r8
              end if
 
 
@@ -1848,7 +1852,7 @@ contains
              burned_mass  = num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned
 
              ! Calculate pyrogenic carbon portion
-             pyc = burned_mass*pyc_proc_facs(0)
+             pyc = burned_mass*pyc_fact
              burned_mass = max(0.0, burned_mass - pyc)
          
              ! transfer pyc between patches
