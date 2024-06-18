@@ -1017,7 +1017,7 @@ contains
                                           leaf_burn_frac * leaf_m * nc%n
 
                                      !pyrogenic carbon for living leaves and grasses
-                                     currentPatch%pyrogenic_carbon(i_pyc) = leaf_burn_frac * leaf_m * nc%n * pyc_fact
+                                     currentPatch%pyrogenic_carbon(i_pyc) = currentPatch%pyrogenic_carbon(i_pyc) + leaf_burn_frac * leaf_m * nc%n * pyc_fact
                                   end do
 
                                   ! Here the mass is removed from the plant
