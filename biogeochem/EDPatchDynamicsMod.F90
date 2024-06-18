@@ -14,6 +14,7 @@ module EDPatchDynamicsMod
   use EDTypesMod           , only : area_site => area
   use ChecksBalancesMod    , only : PatchMassStock
   use FatesLitterMod       , only : ncwd
+  use FatesLitterMod       , only : nfsc
   use FatesLitterMod       , only : ndcmpy
   use FatesLitterMod       , only : litter_type
   use FatesLitterMod       , only : pyc_proc_facs
@@ -61,6 +62,7 @@ module EDPatchDynamicsMod
   use FatesInterfaceTypesMod    , only : hlm_num_luh2_transitions
   use FatesGlobals         , only : endrun => fates_endrun
   use FatesConstantsMod    , only : r8 => fates_r8
+  use FatesConstantsMod    , only : i8 => fates_int
   use FatesConstantsMod    , only : itrue, ifalse
   use FatesConstantsMod    , only : t_water_freeze_k_1atm
   use FatesConstantsMod    , only : TRS_regeneration
@@ -473,10 +475,12 @@ contains
     real(r8) :: struct_c                     ! structure carbon [kg]
     real(r8) :: total_c                      ! total carbon of plant [kg]
     real(r8) :: leaf_burn_frac               ! fraction of leaves burned in fire
+    real(r8) :: pyc_fact                     ! factor c to pyc conversion
     ! for both woody and grass species
     real(r8) :: leaf_m                       ! leaf mass during partial burn calculations
     integer  :: min_nocomp_pft, max_nocomp_pft, i_nocomp_pft
     integer  :: i_disturbance_type, i_dist2  ! iterators for looping over disturbance types
+    integer(i8)  :: i_pyc                        ! index for pyc source fuel type
     integer  :: i_landusechange_receiverpatchlabel  ! iterator for the land use change types
     integer  :: i_donorpatch_landuse_type    ! iterator for the land use change types donor patch
     integer  :: start_receiver_lulabel       ! starting bound for receiver landuse label type loop
@@ -996,6 +1000,7 @@ contains
 
                                         leaf_m = nc%prt%GetState(leaf_organ, element_list(el))
                                         pyc_fact = 0.03488333_r8 !living crown fuels
+                                        i_pyc = 5_i8
 
                                      else
                                         ! for grasses burn all aboveground tissues
@@ -1003,6 +1008,7 @@ contains
                                              nc%prt%GetState(sapw_organ, element_list(el)) + &
                                              nc%prt%GetState(struct_organ, element_list(el))
                                         pyc_fact = 0.03137333_r8 !living grasses
+                                        i_pyc = 6_i8
 
                                      endif
 
@@ -1011,7 +1017,7 @@ contains
                                           leaf_burn_frac * leaf_m * nc%n
 
                                      !pyrogenic carbon for living leaves and grasses
-                                     currentPatch%pyrogenic_carbon(0) = leaf_burn_frac * leaf_m * nc%n * pyc_fact
+                                     currentPatch%pyrogenic_carbon(i_pyc) = leaf_burn_frac * leaf_m * nc%n * pyc_fact
                                   end do
 
                                   ! Here the mass is removed from the plant
@@ -1576,6 +1582,11 @@ contains
           litter_stock0 = curr_litt%GetTotalLitterMass()*currentPatch%area + & 
                           new_litt%GetTotalLitterMass()*newPatch%area
        end if
+       
+       do c = 1,nfsc
+          ! remove old PyC burned in fire (this is only done once/fire, here)
+          currentPatch%pyrogenic_carbon(c) = pyc_fire_loss * currentPatch%pyrogenic_carbon(c)
+       enddo
 
        do c = 1,ncwd
              
@@ -1589,9 +1600,6 @@ contains
          ! calculate pyrogenic carbon
          pyc = burned_mass*pyc_proc_facs(c)
          !burned_mass = max(0.0, burned_mass - pyc)
-         
-         ! remove old PyC burned in fire (this is only done once/fire, here)
-         currentPatch%pyrogenic_carbon(c) = pyc_fire_loss * currentPatch%pyrogenic_carbon(c)
 
          ! transfer pyc between patches
          currentPatch%pyrogenic_carbon(c) = currentPatch%pyrogenic_carbon(c) + pyc*retain_m2
@@ -1626,8 +1634,8 @@ contains
            !burned_mass = max(0.0, burned_mass - pyc)
          
            ! transfer pyc between patches
-           currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc*retain_m2
-           newPatch%pyrogenic_carbon = newPatch%pyrogenic_carbon + pyc*donate_m2
+           currentPatch%pyrogenic_carbon(5) = currentPatch%pyrogenic_carbon(5) + pyc*retain_m2
+           newPatch%pyrogenic_carbon(5) = newPatch%pyrogenic_carbon(5) + pyc*donate_m2
             
 
            new_litt%leaf_fines(dcmpy) = new_litt%leaf_fines(dcmpy) + donatable_mass*donate_m2
@@ -1817,6 +1825,7 @@ contains
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
                 struct_m        = currentCohort%prt%GetState(struct_organ,element_id)
                 pyc_fact        = 0.0136_r8
+                currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon(4) + num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              else
                 ! for non-woody plants all stem fluxes go into the same leaf litter pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id) + &
@@ -1825,6 +1834,7 @@ contains
                 sapw_m          = 0._r8
                 struct_m        = 0._r8
                 pyc_fact        = 0.0313733_r8
+                currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon(6) + num_dead_trees * leaf_m * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              end if
 
 
@@ -1841,10 +1851,7 @@ contains
 
              ! Calculate pyrogenic carbon portion
              pyc = burned_mass*pyc_fact
-             !burned_mass = max(0.0, burned_mass - pyc)
-         
-             ! transfer pyc between patches
-             currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon + pyc * currentPatch%area 
+             !burned_mass = max(0.0, burned_mass - pyc) 
 
              do dcmpy=1,ndcmpy
                  dcmpy_frac = GetDecompyFrac(pft,leaf_organ,dcmpy)
