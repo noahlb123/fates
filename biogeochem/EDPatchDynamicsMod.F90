@@ -1583,10 +1583,8 @@ contains
                           new_litt%GetTotalLitterMass()*newPatch%area
        end if
        
-       do c = 1,nfsc
-          ! remove old PyC burned in fire (this is only done once/fire, here)
-          currentPatch%pyrogenic_carbon(c) = pyc_fire_loss * currentPatch%pyrogenic_carbon(c)
-       enddo
+       ! remove old PyC burned in fire (this is only done once/fire, here)
+       currentPatch%pyrogenic_carbon(:) = pyc_fire_loss * currentPatch%pyrogenic_carbon(:)
 
        do c = 1,ncwd
              
