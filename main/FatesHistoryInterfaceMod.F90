@@ -4258,7 +4258,7 @@ contains
                         cpatch%burnt_frac_litter(i_fuel) * cpatch%frac_burnt * cpatch%area * AREA_INV
 
                    hio_pyro_carbon_si_fuel(io_si, i_fuel) = hio_pyro_carbon_si_fuel(io_si, i_fuel) + &
-                        cpatch%pyrogenic_carbon(i_fuel) * cpatch%frac_burnt * cpatch%area * AREA_INV
+                        cpatch%pyrogenic_carbon(i_fuel) * cpatch%area * AREA_INV
                 end do
 
 

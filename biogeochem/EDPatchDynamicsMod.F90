@@ -1823,7 +1823,7 @@ contains
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
                 struct_m        = currentCohort%prt%GetState(struct_organ,element_id)
                 pyc_fact        = 0.0136_r8
-                currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon(4) + num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
+                currentPatch%pyrogenic_carbon(4) = currentPatch%pyrogenic_carbon(4) + num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              else
                 ! for non-woody plants all stem fluxes go into the same leaf litter pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id) + &
@@ -1832,7 +1832,7 @@ contains
                 sapw_m          = 0._r8
                 struct_m        = 0._r8
                 pyc_fact        = 0.0313733_r8
-                currentPatch%pyrogenic_carbon = currentPatch%pyrogenic_carbon(6) + num_dead_trees * leaf_m * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
+                currentPatch%pyrogenic_carbon(6) = currentPatch%pyrogenic_carbon(6) + num_dead_trees * leaf_m * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              end if
 
 
