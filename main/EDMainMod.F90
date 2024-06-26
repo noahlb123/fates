@@ -334,7 +334,8 @@ contains
     use FatesConstantsMod, only : itrue
     use FatesConstantsMod     , only : nearzero
     use EDCanopyStructureMod  , only : canopy_structure
-    
+    use FatesPyrogenicCarbonMod,only :  PycDailyLoss
+
     ! !ARGUMENTS:
 
     type(ed_site_type)     , intent(inout) :: currentSite
@@ -735,7 +736,7 @@ contains
        call PreDisturbanceIntegrateLitter(currentPatch )
 
        !slowly degrade pyc every day
-       !currentPatch%pyrogenic_carbon(:) = max(0.0_r8, currentPatch%pyrogenic_carbon(:)*pyc_daily_loss)
+       call PycDailyLoss(currentPatch)
 
        currentPatch => currentPatch%older
     enddo

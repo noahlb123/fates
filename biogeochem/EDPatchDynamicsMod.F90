@@ -441,11 +441,12 @@ contains
     !
     ! !USES:
 
-    use EDParamsMod          , only : ED_val_understorey_death, logging_coll_under_frac
-    use EDCohortDynamicsMod  , only : terminate_cohorts
-    use FatesConstantsMod    , only : rsnbl_math_prec
-    use FatesLandUseChangeMod, only : get_landuse_transition_rates
-    use FatesLandUseChangeMod, only : get_landusechange_rules
+    use EDParamsMod          ,   only : ED_val_understorey_death, logging_coll_under_frac
+    use EDCohortDynamicsMod  ,   only : terminate_cohorts
+    use FatesConstantsMod    ,   only : rsnbl_math_prec
+    use FatesLandUseChangeMod,   only : get_landuse_transition_rates
+    use FatesLandUseChangeMod,   only : get_landusechange_rules
+    use FatesPyrogenicCarbonMod, only : PycLivingLeavesGrass
     !
     ! !ARGUMENTS:
     type (ed_site_type), intent(inout) :: currentSite
@@ -488,6 +489,7 @@ contains
     real(r8) :: disturbance_rate             ! rate of disturbance being resolved [fraction of patch area / day]
     real(r8) :: oldarea                      ! old patch area prior to disturbance
     logical  :: clearing_matrix(n_landuse_cats,n_landuse_cats)  ! do we clear vegetation when transferring from one LU type to another?
+    logical  :: is_woody                     ! track whether pft is woody
 
     !---------------------------------------------------------------------
 
@@ -994,21 +996,19 @@ contains
 
                                   do el = 1,num_elements
 
+                                     is_woody = int(prt_params%woody(currentCohort%pft)) == itrue
+
                                      leaf_m = nc%prt%GetState(leaf_organ, element_list(el))
                                      ! for woody plants burn only leaves
-                                     if(int(prt_params%woody(currentCohort%pft)) == itrue)then
+                                     if(is_woody)then
 
                                         leaf_m = nc%prt%GetState(leaf_organ, element_list(el))
-                                        pyc_fact = 0.03488333_r8 !living crown fuels
-                                        i_pyc = 5_i8
 
                                      else
                                         ! for grasses burn all aboveground tissues
                                         leaf_m = nc%prt%GetState(leaf_organ, element_list(el)) + &
                                              nc%prt%GetState(sapw_organ, element_list(el)) + &
                                              nc%prt%GetState(struct_organ, element_list(el))
-                                        pyc_fact = 0.03137333_r8 !living grasses
-                                        i_pyc = 6_i8
 
                                      endif
 
@@ -1017,7 +1017,7 @@ contains
                                           leaf_burn_frac * leaf_m * nc%n
 
                                      !pyrogenic carbon for living leaves and grasses
-                                     currentPatch%pyrogenic_carbon(i_pyc) = currentPatch%pyrogenic_carbon(i_pyc) + leaf_burn_frac * leaf_m * nc%n * pyc_fact
+                                     call PycLivingLeavesGrass(currentPatch, leaf_burn_frac, leaf_m, nc%n, is_woody)
                                   end do
 
                                   ! Here the mass is removed from the plant
@@ -1468,6 +1468,9 @@ contains
      
     !
     ! !USES:
+    use FatesPyrogenicCarbonMod, only : PycFireLoss
+    use FatesPyrogenicCarbonMod, only : PycWoodyDebris
+    use FatesPyrogenicCarbonMod, only : PycLeafLitter
 
 
     ! !ARGUMENTS:
@@ -1584,7 +1587,7 @@ contains
        end if
        
        ! remove old PyC burned in fire (this is only done once/fire, here)
-       !currentPatch%pyrogenic_carbon(:) = pyc_fire_loss * currentPatch%pyrogenic_carbon(:)
+       call PycFireLoss(currentPatch)
 
        do c = 1,ncwd
              
@@ -1596,12 +1599,7 @@ contains
                                currentPatch%burnt_frac_litter(c)
                                
          ! calculate pyrogenic carbon
-         pyc = burned_mass*pyc_proc_facs(c)
-         !burned_mass = max(0.0, burned_mass - pyc)
-
-         ! transfer pyc between patches
-         currentPatch%pyrogenic_carbon(c) = currentPatch%pyrogenic_carbon(c) + pyc*retain_m2
-         newPatch%pyrogenic_carbon(c) = newPatch%pyrogenic_carbon(c) + pyc*donate_m2
+         PycWoodyDebris(currentPatch, burned_mass, retain_m2, donate_m2)
          
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2
@@ -1628,13 +1626,7 @@ contains
                                       currentPatch%burnt_frac_litter(dl_sf)
 
            ! calculate pyrogenic carbon from leaf litter
-           pyc = burned_mass*0.01602_r8
-           !burned_mass = max(0.0, burned_mass - pyc)
-         
-           ! transfer pyc between patches
-           currentPatch%pyrogenic_carbon(5) = currentPatch%pyrogenic_carbon(5) + pyc*retain_m2
-           newPatch%pyrogenic_carbon(5) = newPatch%pyrogenic_carbon(5) + pyc*donate_m2
-            
+           call PycLeafLitter(currentPatch, burned_mass, retain_m2, donate_m2)
 
            new_litt%leaf_fines(dcmpy) = new_litt%leaf_fines(dcmpy) + donatable_mass*donate_m2
            curr_litt%leaf_fines(dcmpy) = curr_litt%leaf_fines(dcmpy) + donatable_mass*retain_m2
@@ -1703,6 +1695,7 @@ contains
     !
     ! !USES:
     use SFParamsMod,          only : SF_VAL_CWD_FRAC
+    use FatesPyrogenicCarbonMod, only : PycDeadPlants
     !
     ! !ARGUMENTS:
     type(ed_site_type)  , intent(inout), target :: currentSite
@@ -1822,8 +1815,6 @@ contains
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id)
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
                 struct_m        = currentCohort%prt%GetState(struct_organ,element_id)
-                pyc_fact        = 0.0136_r8
-                currentPatch%pyrogenic_carbon(4) = currentPatch%pyrogenic_carbon(4) + num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              else
                 ! for non-woody plants all stem fluxes go into the same leaf litter pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id) + &
@@ -1831,9 +1822,9 @@ contains
                      currentCohort%prt%GetState(struct_organ,element_id)
                 sapw_m          = 0._r8
                 struct_m        = 0._r8
-                pyc_fact        = 0.0313733_r8
-                currentPatch%pyrogenic_carbon(6) = currentPatch%pyrogenic_carbon(6) + num_dead_trees * leaf_m * currentCohort%fraction_crown_burned * pyc_fact * currentPatch%area
              end if
+
+             call PycDeadPlants(currentPatch, currentCohort%fraction_crown_burned, currentPatch%area, repro_m, leaf_m, num_dead_trees, is_woody)
 
 
              ! Absolute number of dead trees being transfered in with the donated area
