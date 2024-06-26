@@ -14,6 +14,13 @@ module FatesPyrogenicCarbonMod
   implicit none
   private
 
+  public :: PycLivingLeavesGrass
+  public :: PycDeadPlants
+  public :: PycWoodyDebris
+  public :: PycLeafLitter
+  public :: PycFireLoss
+  public :: PycDailyLoss
+
   ! Pyrogenic Carbon Production Factors (grams PyC / grams carbon burned)
   ! for each litter type (twigs, small branches, large branches, trunks)
   real(r8), parameter, public :: pyc_proc_facs(ncwd) = &
@@ -87,7 +94,7 @@ contains
      newPatch%pyrogenic_carbon(c) = newPatch%pyrogenic_carbon(c) + burned_mass * pyc_proc_facs(c) * donate_m2
 
      return
-  end subroutine PycLivingLeavesGrass
+  end subroutine PycWoodyDebris
 
 
 
@@ -107,7 +114,7 @@ contains
      newPatch%pyrogenic_carbon(5) = newPatch%pyrogenic_carbon(5) + burned_mass * 0.01602_r8 * donate_m2
 
      return
-  end subroutine PycLivingLeavesGrass
+  end subroutine PycLeafLitter
 
 
 
@@ -119,7 +126,7 @@ contains
      currentPatch%pyrogenic_carbon(:) = pyc_fire_loss * currentPatch%pyrogenic_carbon(:)
 
      return
-  end subroutine PycLivingLeavesGrass
+  end subroutine PycFireLoss
 
 
 
@@ -131,5 +138,5 @@ contains
      currentPatch%pyrogenic_carbon(:) = pyc_daily_loss * currentPatch%pyrogenic_carbon(:)
 
      return
-  end subroutine PycLivingLeavesGrass
+  end subroutine PycDailyLoss
 end module FatesPyrogenicCarbonMod

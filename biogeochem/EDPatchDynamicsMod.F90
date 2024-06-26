@@ -1599,7 +1599,7 @@ contains
                                currentPatch%burnt_frac_litter(c)
                                
          ! calculate pyrogenic carbon
-         PycWoodyDebris(currentPatch, burned_mass, retain_m2, donate_m2)
+         call PycWoodyDebris(currentPatch, burned_mass, retain_m2, donate_m2)
          
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2
@@ -1742,6 +1742,7 @@ contains
     real(r8) :: SF_val_CWD_frac_adj(4) !Updated wood partitioning to CWD based on dbh
     real(r8) :: pyc                  ! pyrogenic carbon produced from fire (charcoal, ash)
     real(r8) :: pyc_fact             ! fraction of carbon converted to pyc
+    logical  :: is_woody             ! track whether pft is woody
     !---------------------------------------------------------------------
 
     ! Only do this if there was a fire in this actual patch. 
@@ -1809,8 +1810,9 @@ contains
              fnrt_m   = currentCohort%prt%GetState(fnrt_organ, element_id)
              store_m  = currentCohort%prt%GetState(store_organ, element_id)
              repro_m  = currentCohort%prt%GetState(repro_organ, element_id)
+             is_woody = prt_params%woody(currentCohort%pft) == itrue
           
-             if (prt_params%woody(currentCohort%pft) == itrue) then
+             if (is_woody) then
                 ! Assumption: for woody plants fluxes from deadwood and sapwood go together in CWD pool
                 leaf_m          = currentCohort%prt%GetState(leaf_organ,element_id)
                 sapw_m          = currentCohort%prt%GetState(sapw_organ,element_id)
