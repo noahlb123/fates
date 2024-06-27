@@ -9,7 +9,9 @@ module FatesPyrogenicCarbonMod
 
   use FatesConstantsMod,           only : r8 => fates_r8
   use FatesLitterMod,              only : nfsc
+  use FatesLitterMod,              only : ncwd
   use FatesConstantsMod,           only : i8 => fates_int
+  use FatesPatchMod,               only : fates_patch_type
 
   implicit none
   private
@@ -37,7 +39,7 @@ contains
   subroutine PycLivingLeavesGrass(currentPatch, leaf_burn_frac, leaf_m, n, is_woody)
 
      type(fates_patch_type),intent(inout),target :: currentPatch
-     integer,intent(in)                          :: n                 ! number of plants burned
+     real(r8),intent(in)                         :: n                 ! number of plants burned
      real(r8),intent(in)                         :: leaf_burn_frac
      real(r8),intent(in)                         :: leaf_m            ! kg
      logical,intent(in)                          :: is_woody          ! is woody or is grass
@@ -57,7 +59,7 @@ contains
   subroutine PycDeadPlants(currentPatch, fraction_crown_burned, area, repro_m, leaf_m, num_dead_trees, is_woody)
 
      type(fates_patch_type),intent(inout),target :: currentPatch
-     integer,intent(in)                          :: num_dead_trees
+     real(r8),intent(in)                         :: num_dead_trees
      real(r8),intent(in)                         :: fraction_crown_burned
      real(r8),intent(in)                         :: area
      real(r8),intent(in)                         :: leaf_m            ! leaf mass
@@ -79,9 +81,10 @@ contains
 
 
   !pyc from woody debris
-  subroutine PycWoodyDebris(currentPatch, burned_mass, retain_m2, donate_m2, c)
+  subroutine PycWoodyDebris(currentPatch, newPatch, burned_mass, retain_m2, donate_m2, c)
 
      type(fates_patch_type),intent(inout),target :: currentPatch
+     type(fates_patch_type),intent(inout),target :: newPatch
      integer,intent(in)                          :: c             ! woody debris type index
      real(r8),intent(in)                         :: burned_mass
      real(r8),intent(in)                         :: retain_m2     ! retained area after fire
@@ -99,10 +102,10 @@ contains
 
 
   !pyc from leaf litter
-  subroutine PycLeafLitter(currentPatch, burned_mass, retain_m2, donate_m2)
+  subroutine PycLeafLitter(currentPatch, newPatch, burned_mass, retain_m2, donate_m2)
 
      type(fates_patch_type),intent(inout),target :: currentPatch
-     integer,intent(in)                          :: c             ! woody debris type index 
+     type(fates_patch_type),intent(inout),target :: newPatch
      real(r8),intent(in)                         :: burned_mass   
      real(r8),intent(in)                         :: retain_m2     ! retained area after fire 
      real(r8),intent(in)                         :: donate_m2     ! donated area after fire

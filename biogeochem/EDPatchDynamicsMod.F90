@@ -1599,7 +1599,7 @@ contains
                                currentPatch%burnt_frac_litter(c)
                                
          ! calculate pyrogenic carbon
-         call PycWoodyDebris(currentPatch, burned_mass, retain_m2, donate_m2)
+         call PycWoodyDebris(currentPatch, newPatch, burned_mass, retain_m2, donate_m2, c)
          
           new_litt%ag_cwd(c) = new_litt%ag_cwd(c) + donatable_mass*donate_m2
           curr_litt%ag_cwd(c) = curr_litt%ag_cwd(c) + donatable_mass*retain_m2
@@ -1626,7 +1626,7 @@ contains
                                       currentPatch%burnt_frac_litter(dl_sf)
 
            ! calculate pyrogenic carbon from leaf litter
-           call PycLeafLitter(currentPatch, burned_mass, retain_m2, donate_m2)
+           call PycLeafLitter(currentPatch, newPatch, burned_mass, retain_m2, donate_m2)
 
            new_litt%leaf_fines(dcmpy) = new_litt%leaf_fines(dcmpy) + donatable_mass*donate_m2
            curr_litt%leaf_fines(dcmpy) = curr_litt%leaf_fines(dcmpy) + donatable_mass*retain_m2
