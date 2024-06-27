@@ -14,11 +14,8 @@ module EDPatchDynamicsMod
   use EDTypesMod           , only : area_site => area
   use ChecksBalancesMod    , only : PatchMassStock
   use FatesLitterMod       , only : ncwd
-  use FatesLitterMod       , only : nfsc
   use FatesLitterMod       , only : ndcmpy
   use FatesLitterMod       , only : litter_type
-  use FatesLitterMod       , only : pyc_proc_facs
-  use FatesLitterMod       , only : pyc_fire_loss
   use FatesConstantsMod    , only : n_dbh_bins 
   use FatesLitterMod       , only : adjust_SF_CWD_frac
   use EDTypesMod           , only : homogenize_seed_pfts
@@ -62,7 +59,6 @@ module EDPatchDynamicsMod
   use FatesInterfaceTypesMod    , only : hlm_num_luh2_transitions
   use FatesGlobals         , only : endrun => fates_endrun
   use FatesConstantsMod    , only : r8 => fates_r8
-  use FatesConstantsMod    , only : i8 => fates_int
   use FatesConstantsMod    , only : itrue, ifalse
   use FatesConstantsMod    , only : t_water_freeze_k_1atm
   use FatesConstantsMod    , only : TRS_regeneration
@@ -476,12 +472,10 @@ contains
     real(r8) :: struct_c                     ! structure carbon [kg]
     real(r8) :: total_c                      ! total carbon of plant [kg]
     real(r8) :: leaf_burn_frac               ! fraction of leaves burned in fire
-    real(r8) :: pyc_fact                     ! factor c to pyc conversion
     ! for both woody and grass species
     real(r8) :: leaf_m                       ! leaf mass during partial burn calculations
     integer  :: min_nocomp_pft, max_nocomp_pft, i_nocomp_pft
     integer  :: i_disturbance_type, i_dist2  ! iterators for looping over disturbance types
-    integer(i8)  :: i_pyc                        ! index for pyc source fuel type
     integer  :: i_landusechange_receiverpatchlabel  ! iterator for the land use change types
     integer  :: i_donorpatch_landuse_type    ! iterator for the land use change types donor patch
     integer  :: start_receiver_lulabel       ! starting bound for receiver landuse label type loop
@@ -1501,7 +1495,6 @@ contains
     real(r8) :: litter_stock0,litter_stock1
     real(r8) :: burn_flux0,burn_flux1
     real(r8) :: error
-    real(r8) :: pyc
 
     do el = 1,num_elements
 
@@ -1740,8 +1733,6 @@ contains
     integer  :: dcmpy                ! loop index for decomposability pool
     integer  :: element_id           ! parteh compatible global element index
     real(r8) :: SF_val_CWD_frac_adj(4) !Updated wood partitioning to CWD based on dbh
-    real(r8) :: pyc                  ! pyrogenic carbon produced from fire (charcoal, ash)
-    real(r8) :: pyc_fact             ! fraction of carbon converted to pyc
     logical  :: is_woody             ! track whether pft is woody
     !---------------------------------------------------------------------
 
@@ -1839,10 +1830,6 @@ contains
 
              ! Contribution of dead trees to leaf burn-flux
              burned_mass  = num_dead_trees * (leaf_m+repro_m) * currentCohort%fraction_crown_burned
-
-             ! Calculate pyrogenic carbon portion
-             pyc = burned_mass*pyc_fact
-             !burned_mass = max(0.0, burned_mass - pyc) 
 
              do dcmpy=1,ndcmpy
                  dcmpy_frac = GetDecompyFrac(pft,leaf_organ,dcmpy)
