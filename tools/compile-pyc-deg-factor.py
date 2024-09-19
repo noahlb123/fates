@@ -35,4 +35,7 @@ factor_sum = 0
 for lit in lits:
     factor_sum += convert2fy(lit['factor'], lit['unit'])
 
-print(factor_sum / len(lits))
+rate = factor_sum / len(lits)
+print(rate, 'fraction/year')
+print(rate / 365, 'fraction/day')
+print(np.log(2) / rate, 'half life in years')
